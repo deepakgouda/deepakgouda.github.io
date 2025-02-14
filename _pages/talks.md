@@ -7,6 +7,10 @@ nav: true
 nav_order: 2
 ---
 
+<a class="in-text" href="../assets/pdf/Tracing-RPKI-Invalids.pdf" target="_blank">Tracing RPKI Invalid Propagation with Internet Yellow Pages & Scamper </a> <br>
+We use Internet Yellow Pages and Scamper to traceroute hosts in RPKI invalid prefixes and infer ROV deployment policies.
+
+---
 <a class="in-text" href="../assets/pdf/TDP_2024.pdf" target="_blank">Decoding Barriers : Identifying Disparities in Routing Security Adoption </a> <br>
 Hurdles faced by Internet operators while adopting security measures for the Internet's routing infrastructure.
 
