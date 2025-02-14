@@ -3,7 +3,7 @@ layout: page
 title: shots
 permalink: /shots/
 description: A growing collection of my captures.
-nav: true
+nav: false
 nav_order: 1
 display_categories: [travel]
 horizontal: false
