@@ -1,0 +1,186 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title>Redis - An Introduction | Deepak Gouda</title> <meta name="author" content="Deepak Gouda"/> <meta name="description" content="My notes on setting up Redis and solving a standard problem."/> <meta name="keywords" content="academic-website, portfolio-website"/> <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-DF7Zhf293AJxJNTmh5zhoYYIMs2oXitRfBjY+9L//AY=" crossorigin="anonymous"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"/> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.1/css/academicons.min.css" integrity="sha256-i1+4qU2G2860dGGIOJscdC30s9beBXjFfzjWLjBRsBg=" crossorigin="anonymous"> <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jwarby/jekyll-pygments-themes@master/github.css" media="none" id="highlight_theme_light"/> <link rel="shortcut icon" href="/assets/img/title-icon.png"/> <link rel="stylesheet" href="/assets/css/main.css"> <link rel="canonical" href="https://deepakgouda.github.io/blog/2021/redis/"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jwarby/jekyll-pygments-themes@master/native.css" media="none" id="highlight_theme_dark"/> <script src="/assets/js/theme.js"></script> <script src="/assets/js/dark_mode.js"></script> </head> <body class="fixed-top-nav sticky-bottom-footer"> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="https://deepakgouda.github.io/"><span class="font-weight-bold">Deepak</span> Gouda</a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">about</a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">blog<span class="sr-only">(current)</span></a> </li> <li class="nav-item "> <a class="nav-link" href="/gallery/">gallery</a> </li> <li class="nav-item "> <a class="nav-link" href="/projects/">projects</a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">publications</a> </li> <li class="nav-item "> <a class="nav-link" href="/talks/">talks</a> </li> <li class="nav-item dropdown "> <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">submenus</a> <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"> <a class="dropdown-item" href="/genealogy/">genealogy</a> <a class="dropdown-item" href="/checklist/">checklist</a> </div> </li> <div class="toggle-container"> <a id="light-toggle"> <i class="fas fa-moon"></i> <i class="fas fa-sun"></i> </a> </div> </ul> </div> </div> </nav> </header> <div class="container mt-5"> <div class="post"> <header class="post-header"> <h1 class="post-title">Redis - An Introduction</h1> <p class="post-meta">May 15, 2021</p> <p class="post-tags"> <a href="/blog/2021"> <i class="fas fa-calendar fa-sm"></i> 2021 </a>   ·   <a href="/blog/tag/tech"> <i class="fas fa-hashtag fa-sm"></i> tech</a>   <a href="/blog/tag/framework"> <i class="fas fa-hashtag fa-sm"></i> framework</a>   <a href="/blog/tag/database"> <i class="fas fa-hashtag fa-sm"></i> database</a>     ·   <a href="/blog/category/Setup"> <i class="fas fa-tag fa-sm"></i> Setup</a>   </p> </header> <article class="post-content"> <h1 id="what-is-redis">What is Redis?</h1> <p>Redis is an in-memory data storage system which is often used as a cache as well as database. It provides standard data structures such as Hash Tables, Lists, Sorted sets and Streams. It is a high performance key-value based data store and uses the RAM for storage as opposed to non-volatile disks used by conventional data bases.</p> <p>While this enables Redis to offer high performance, it cannot guarantee recoverability in case of an unforeseen event on the Redis host. Redis offers persistent data storage onto disk in several modes where one can take a snapshot of the data at specific time intervals(RDB), maintain a persistent log file(similar to <a href="https://martinfowler.com/eaaDev/EventSourcing.html" target="_blank" rel="noopener noreferrer">Event Sourcing</a>) or no persistence at all. Advantages, disadvantages and tradeoffs mentioned <a href="https://redis.io/topics/persistence" target="_blank" rel="noopener noreferrer">here</a>.</p> <p>Redis also offers a leader-follower or Master-slave architecture through replication, as well as high availability through <a href="https://redis.io/topics/cluster-tutorial" target="_blank" rel="noopener noreferrer">Redis Clusters</a> or <a href="https://redis.io/topics/sentinel" target="_blank" rel="noopener noreferrer">Redis Sentinel</a>. Redis replication is non-blocking on the master side and it uses asynchronous replication calls. More details on replication <a href="https://redis.io/topics/replication" target="_blank" rel="noopener noreferrer">here</a>. Redis offers partitioning of data as well, allowing us to break the limitations of RAM storage on a single machine. More details on partitioning <a href="https://redis.io/topics/partitioning" target="_blank" rel="noopener noreferrer">here</a>.</p> <p>Access the complete Redis documentation <a href="https://redis.io/documentation" target="_blank" rel="noopener noreferrer">here</a>.</p> <h1 id="message-passing-in-redis">Message passing in Redis</h1> <p>Redis offers interesting data structures to implement message passing. Three of them namely Redis Streams, Message Queues and Redis Pub/Sub have been briefed here.</p> <h3 id="redis-streams">Redis Streams</h3> <ul> <li>doubles as a communication channel for building streaming architectures and as a log-like data structure for persisting data</li> <li>events are immutable and the history, when trimmed, is often saved in cold storage</li> <li>each service writes to its own stream and other services will optionally observe (i.e. “pull” from) it. This makes one-to-many communication much more efficient than with message queues.</li> <li>you don’t need to specify the event-subscribers in advance</li> <li>streams can be trimmed to remove older entries and deleted history often gets preserved in an archival format.</li> <li>being a reliable streaming communication channel, it is an <strong>at-least-once</strong> system</li> </ul> <h3 id="message-queues">Message Queues</h3> <ul> <li>based on mutable lists</li> <li>use a “push” type of communication</li> <li>when successfully processed, they are deleted from the system</li> </ul> <h3 id="redis-pubsub">Redis Pub/Sub</h3> <ul> <li>an <strong>at-most-once</strong> messaging system that allows publishers to broadcast messages to one or more channels.</li> <li>Redis Pub/Sub is designed for real-time communication between instances where low latency is of the utmost importance, and as such doesn’t feature any form of persistence or acknowledgment.</li> <li>It is the leanest possible real-time messaging system, perfect for financial and gaming applications, where every millisecond matters.</li> </ul> <p><a href="https://redislabs.com/solutions/use-cases/messaging/" target="_blank" rel="noopener noreferrer">Source</a></p> <h1 id="installation">Installation</h1> <p>On Debian distros</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>add-apt-repository ppa:redislabs/redis
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>redis
+</code></pre></div></div> <p>Check the server status with</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>service redis-server status
+</code></pre></div></div> <h2 id="manual-installation">Manual Installation</h2> <h3 id="download">Download</h3> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://download.redis.io/releases/redis-6.2.3.tar.gz
+</code></pre></div></div> <h3 id="install--run">Install &amp; Run</h3> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make       <span class="c"># default config</span>
+make <span class="nv">USE_SYSTEMD</span><span class="o">=</span><span class="nb">yes</span>  <span class="c"># build with systemd support. Needs libsystemd-dev.</span>
+</code></pre></div></div> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>src
+./redis-server      <span class="c"># with default config</span>
+./redis-server /path/to/redis.conf <span class="c"># with custom config</span>
+</code></pre></div></div> <h4 id="install-system-wide-usrlocalbin">Install system wide (<code class="language-plaintext highlighter-rouge">/usr/local/bin</code>)</h4> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make <span class="nb">install</span>
+
+<span class="c"># To configure init scripts and config files</span>
+<span class="nb">cd </span>utils
+./install_server.sh
+</code></pre></div></div> <h4 id="start-and-stop-redis">Start and Stop Redis</h4> <p>You’ll be able to stop and start Redis using the script named <code class="language-plaintext highlighter-rouge">/etc/init.d/redis_&lt;portnumber&gt;</code>, for instance <code class="language-plaintext highlighter-rouge">/etc/init.d/redis_6379</code></p> <h2 id="manual-uninstall">Manual Uninstall</h2> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make uninstall
+</code></pre></div></div> <h1 id="redis-clients">Redis Clients</h1> <p>Redis has a multitude of clients, all of which are listed <a href="https://redis.io/clients" target="_blank" rel="noopener noreferrer">here</a>. The C++ client is discussed here.</p> <h2 id="redis-plus-plus">Redis Plus Plus</h2> <p>The recommended Redis client for C++ is <a href="https://github.com/sewenew/redis-plus-plus" target="_blank" rel="noopener noreferrer">Redis Plus Plus</a>. It has been well documented with an active developement community.</p> <h3 id="download-build-and-install">Download, Build and Install</h3> <p>Redis-plus-plus is based on <a href="https://github.com/redis/hiredis" target="_blank" rel="noopener noreferrer">Hiredis</a> which is a C Client for Redis. Hence, install hiredis first.</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/redis/hiredis.git
+<span class="nb">cd </span>hiredis
+
+<span class="c"># Install in default path (/usr/local)</span>
+make
+make <span class="nb">install</span>
+
+<span class="c"># Install in custom path</span>
+make <span class="nv">PREFIX</span><span class="o">=</span>/custom/path/
+make <span class="nv">PREFIX</span><span class="o">=</span>/custom/path/ <span class="nb">install</span>
+</code></pre></div></div> <p>Next, install redis-plus-plus (uses cmake)</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/sewenew/redis-plus-plus.git
+<span class="nb">cd </span>redis-plus-plus
+<span class="nb">mkdir </span>build
+<span class="nb">cd </span>build
+cmake ..
+make
+make <span class="nb">install</span>
+</code></pre></div></div> <p>If hiredis is installed at non-default location, use <code class="language-plaintext highlighter-rouge">CMAKE_PREFIX_PATH</code> to specify the installation path of hiredis. By default, redis-plus-plus is installed at <code class="language-plaintext highlighter-rouge">/usr/local</code>. However, you can use <code class="language-plaintext highlighter-rouge">CMAKE_INSTALL_PREFIX</code> to install redis-plus-plus at non-default location.</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cmake <span class="nt">-DCMAKE_PREFIX_PATH</span><span class="o">=</span>/path/to/hiredis <span class="nt">-DCMAKE_INSTALL_PREFIX</span><span class="o">=</span>/path/to/install/redis-plus-plus ..
+</code></pre></div></div> <h3 id="adding-redis-as-a-package-to-an-existing-cmake-file">Adding Redis as a package to an existing cmake file</h3> <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">set</span><span class="p">(</span><span class="n">SOURCE_FILES</span> <span class="n">app</span><span class="p">.</span><span class="n">cpp</span><span class="p">)</span>
+<span class="n">add_executable</span><span class="p">(</span><span class="n">app</span> <span class="err">$</span><span class="p">{</span><span class="n">SOURCE_FILES</span><span class="p">})</span>
+
+<span class="n">find_path</span><span class="p">(</span><span class="n">HIREDIS_HEADER</span> <span class="n">hiredis</span><span class="p">)</span>
+<span class="n">target_include_directories</span><span class="p">(</span><span class="n">app</span> <span class="n">PUBLIC</span> <span class="err">$</span><span class="p">{</span><span class="n">HIREDIS_HEADER</span><span class="p">})</span>
+
+<span class="n">find_library</span><span class="p">(</span><span class="n">HIREDIS_LIB</span> <span class="n">hiredis</span><span class="p">)</span>
+<span class="n">target_link_libraries</span><span class="p">(</span><span class="n">app</span> <span class="err">$</span><span class="p">{</span><span class="n">HIREDIS_LIB</span><span class="p">})</span>
+
+<span class="n">find_path</span><span class="p">(</span><span class="n">REDIS_PLUS_PLUS_HEADER</span> <span class="n">sw</span><span class="p">)</span>      <span class="err">#</span> <span class="n">NOTE</span><span class="o">:</span> <span class="k">this</span> <span class="n">should</span> <span class="n">be</span> <span class="o">*</span><span class="n">sw</span><span class="o">*</span> <span class="n">NOT</span> <span class="o">*</span><span class="n">redis</span><span class="o">++*</span>
+<span class="n">target_include_directories</span><span class="p">(</span><span class="n">app</span> <span class="n">PUBLIC</span> <span class="err">$</span><span class="p">{</span><span class="n">REDIS_PLUS_PLUS_HEADER</span><span class="p">})</span>
+
+<span class="n">find_library</span><span class="p">(</span><span class="n">REDIS_PLUS_PLUS_LIB</span> <span class="n">redis</span><span class="o">++</span><span class="p">)</span>
+<span class="n">target_link_libraries</span><span class="p">(</span><span class="n">app</span> <span class="err">$</span><span class="p">{</span><span class="n">REDIS_PLUS_PLUS_LIB</span><span class="p">})</span>
+</code></pre></div></div> <h2 id="benchmarks">Benchmarks</h2> <p>Link the hiredis and redis++ libraries while compiling a c++ file</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>g++ <span class="nt">-std</span><span class="o">=</span>c++11 <span class="nt">-o</span> app app.cpp <span class="nt">-lhiredis</span> <span class="nt">-lredis</span>++ <span class="nt">-pthread</span>
+</code></pre></div></div> <p>I ran some benchmarking tests for the write speeds of Redis. Here’s the code snippet</p> <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;future&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sw/redis++/redis++.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">sw</span><span class="o">::</span><span class="n">redis</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="c1">// Number of tests to run.</span>
+        <span class="kt">int</span> <span class="n">max_iter</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+        <span class="kt">double</span> <span class="n">total_time</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="c1">// Length of data packet, number of packets to write</span>
+        <span class="kt">int</span> <span class="n">data_len</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">num_records</span> <span class="o">=</span> <span class="mf">1e5</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">data</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">data_len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">data</span> <span class="o">+=</span> <span class="s">"*"</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">iter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">iter</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">;</span> <span class="n">iter</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">redis</span><span class="p">.</span><span class="n">flushall</span><span class="p">();</span>
+            <span class="k">auto</span> <span class="n">start</span> <span class="o">=</span> <span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_records</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">redis</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">data</span><span class="p">);</span>
+                <span class="c1">// To read data</span>
+                <span class="c1">// redis.get(std::to_string(i));</span>
+            <span class="p">}</span>
+            <span class="k">auto</span> <span class="n">end</span> <span class="o">=</span> <span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+            <span class="k">auto</span> <span class="n">elapsed</span> <span class="o">=</span> <span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">milliseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">).</span><span class="n">count</span><span class="p">()</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">;</span>
+            <span class="n">total_time</span> <span class="o">+=</span> <span class="n">elapsed</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Record size : "</span> <span class="o">&lt;&lt;</span> <span class="n">data_len</span> <span class="o">&lt;&lt;</span> <span class="s">" Bytes"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Num records : "</span> <span class="o">&lt;&lt;</span> <span class="n">num_records</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Avg : "</span> <span class="o">&lt;&lt;</span> <span class="n">total_time</span> <span class="o">/</span> <span class="n">max_iter</span> <span class="o">&lt;&lt;</span> <span class="s">" seconds"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Avg : "</span> <span class="o">&lt;&lt;</span> <span class="n">num_records</span> <span class="o">/</span> <span class="p">(</span><span class="n">total_time</span> <span class="o">/</span> <span class="n">max_iter</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">" records/second"</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">Error</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// Error handling.</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div> <p>Results:</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Write</span>
+Record size : 200 Bytes
+Num records : 100000
+Avg : 1.7691 seconds
+Avg : 56525.9 records/second
+
+Record size : 500 Bytes
+Num records : 100000
+Avg : 1.8067 seconds
+Avg : 55349.5 records/second
+
+Record size : 2000 Bytes
+Num records : 100000
+Avg : 1.9342 seconds
+Avg : 51701 records/second
+
+<span class="c"># Read</span>
+Num records : 100000
+Avg : 1.7055 seconds
+Avg : 58633.8 records/second
+</code></pre></div></div> <p>I did not observe significant throttling or degradation in performance as I increased the packet size or number of packets. The <a href="https://github.com/ServiceStack/ServiceStack.Redis" target="_blank" rel="noopener noreferrer">C# client</a> had significantly slower write throughput</p> <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Record size : 200 Bytes
+Num records : 1e5
+Time : 4.159 s
+Avg : 24041 records/sec
+
+Record size : 500 Bytes
+Num records : 1e5
+Time : 4.213 s
+Avg : 23732 records/sec
+
+Record size : 2000 Bytes
+Num records : 1e5
+Time : 4.320 s
+Avg : 23146 records/sec
+</code></pre></div></div> <h2 id="sample-producer-consumer-problem">Sample Producer-Consumer problem</h2> <p>Now we come to the standard <a href="https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem" target="_blank" rel="noopener noreferrer">producer consumer problem</a>. In this case, I have considered only a single producer and single consumer since I intend to discuss the data structures and their usage rather than locks and synchronisation procedures.</p> <p>I have used a <a href="https://redis.io/topics/data-types" target="_blank" rel="noopener noreferrer">Redis List</a> here, to simulate a queue. I create two separate threads simulating a producer and a consumer who push a data packet into the queue and pop from the queue respecively.</p> <div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;future&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sw/redis++/redis++.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">sw</span><span class="o">::</span><span class="n">redis</span><span class="p">;</span>
+
+<span class="cp">#define prompt(x) std::cout &lt;&lt; x &lt;&lt; std::endl;
+</span>
+<span class="kt">int</span> <span class="nf">pushData</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Redis</span> <span class="n">redis</span> <span class="o">=</span> <span class="n">Redis</span><span class="p">(</span><span class="s">"tcp://127.0.0.1:6379"</span><span class="p">);</span>
+    <span class="n">redis</span><span class="p">.</span><span class="n">flushall</span><span class="p">();</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">--</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">redis</span><span class="p">.</span><span class="n">rpush</span><span class="p">(</span><span class="s">"list"</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+        <span class="n">prompt</span><span class="p">(</span><span class="s">"Pushed "</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">popData</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Redis</span> <span class="n">redis</span> <span class="o">=</span> <span class="n">Redis</span><span class="p">(</span><span class="s">"tcp://127.0.0.1:6379"</span><span class="p">);</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">len</span> <span class="o">=</span> <span class="n">redis</span><span class="p">.</span><span class="n">llen</span><span class="p">(</span><span class="s">"list"</span><span class="p">);</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">auto</span> <span class="n">val</span> <span class="o">=</span> <span class="n">redis</span><span class="p">.</span><span class="n">lpop</span><span class="p">(</span><span class="s">"list"</span><span class="p">);</span>
+        <span class="n">prompt</span><span class="p">(</span><span class="s">"Popped "</span> <span class="o">+</span> <span class="o">*</span><span class="n">val</span><span class="p">);</span>
+        <span class="n">len</span> <span class="o">=</span> <span class="n">redis</span><span class="p">.</span><span class="n">llen</span><span class="p">(</span><span class="s">"list"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">fut1</span><span class="p">,</span> <span class="n">fut2</span><span class="p">;</span>
+        <span class="n">fut1</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">async</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">launch</span><span class="o">::</span><span class="n">async</span><span class="p">,</span> <span class="n">pushData</span><span class="p">);</span>
+        <span class="n">fut2</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">async</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">launch</span><span class="o">::</span><span class="n">async</span><span class="p">,</span> <span class="n">popData</span><span class="p">);</span>
+
+        <span class="n">fut1</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+        <span class="n">fut2</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">Error</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// Error handling.</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div> <p>Further C++ examples and usage documented <a href="https://github.com/sewenew/redis-plus-plus#getting-started" target="_blank" rel="noopener noreferrer">here</a>. C# Hash usage <a href="http://taswar.zeytinsoft.com/redis-hash-datatype/" target="_blank" rel="noopener noreferrer">here</a> and Set usage <a href="http://taswar.zeytinsoft.com/redis-sets-datatype/" target="_blank" rel="noopener noreferrer">here</a>.</p> </article> </div> </div> <footer class="sticky-bottom mt-5"> <div class="container" style="text-align:center;"> © Copyright 2025 Deepak Gouda. <a href="https://github.com/alshedivat/al-folio" target="_blank" rel="noopener noreferrer"> Template here!</a>. All images are my own. Last updated: February 19, 2025. </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.2/dist/umd/popper.min.js" integrity="sha256-l/1pMF/+J4TThfgARS6KwWrk/egwuVvhRzfLAMQ6Ds4=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha256-SyTu6CwrfOhaznYZPoolVw2rxoY7lKYKQvqbtqN93HI=" crossorigin="anonymous"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@4/imagesloaded.pkgd.min.js"></script> <script defer src="/assets/js/masonry.js" type="text/javascript"></script> <script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.6/dist/medium-zoom.min.js" integrity="sha256-EdPgYcPk/IIrw7FYeuJQexva49pVRZNmt3LculEr7zM=" crossorigin="anonymous"></script> <script src="/assets/js/zoom.js"></script> <script src="/assets/js/common.js"></script> <script type="text/javascript">window.MathJax={tex:{tags:"ams"}};</script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script> <script defer src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> </body> </html>
